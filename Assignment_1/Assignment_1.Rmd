@@ -12,6 +12,7 @@ The data set was download from Key2Stats: [https://www.key2stats.com/Students_Pe
 # loads the data set in
 students <- read.csv("https://www.key2stats.com/Students_Performance_in_Exams_1559_29.csv")
 
+head(students)
 
 # shows the descriptive statistics
 summary(students[,c("math.score","reading.score","writing.score")])
@@ -20,5 +21,16 @@ table(students$gender)
 table(students$race.ethnicity)
 table(students$parental.level.of.education)
 
+
+# Transform variable to get average score of three exams
+students$average.score <-rowMeans(students[,c("math.score","reading.score","writing.score")])
+
+head(students[,c("math.score","reading.score","writing.score","average.score")])
+
+# creates a histogram showing frequency of average scores
+hist(students$average.score,main="Histogram of Average Scores",xlab="Average Score",col="skyblue",border="white")
+
+# creates a scatter plot of Math Scores vs Writing Scores
+plot(students$math.score,students$writing.score,main="Scatterplot of Math Score vs Writing Score",xlab = "Math Score",ylab = "Writing Score", pch = 19,col="darkgreen")
 
 ```
