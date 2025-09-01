@@ -1,5 +1,24 @@
 ---
 title: "Assignment_1"
+author: "Cole Yagersz"
 output: html_document
 ---
 
+## Dataset
+
+The data set was download from Key2Stats: [https://www.key2stats.com/Students_Performance_in_Exams_1559_29.csv](https://www.key2stats.com/Students_Performance_in_Exams_1559_29.csv)
+
+```{r}
+# loads the data set in
+students <- read.csv("https://www.key2stats.com/Students_Performance_in_Exams_1559_29.csv")
+
+
+# shows the descriptive statistics
+summary(students[,c("math.score","reading.score","writing.score")])
+
+table(students$gender)
+table(students$race.ethnicity)
+table(students$parental.level.of.education)
+
+
+```
