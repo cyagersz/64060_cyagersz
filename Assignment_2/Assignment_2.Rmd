@@ -1,0 +1,85 @@
+---
+title: "Assignment_2"
+author: "Cole Yagersz"
+output: html_document
+---
+
+
+```{r}
+library("class")
+library("caret")
+library("FNN")
+
+bank <- read.csv("UniversalBank.csv")   #Load the data set
+
+bank <- bank[, !(names(bank) %in% c("ID","ZIP.Code"))]   # Remove the variables ID and ZIP
+
+head(bank)
+
+bank$Education <- as.factor(bank$Education)
+levels(bank$Education)
+
+dummy_model <- dummyVars(~Education,data=bank)
+education_dummy <- predict(dummy_model,newdata = bank)
+
+# Bind dummy vars and remove original Education
+bank <- cbind(bank, as.data.frame(education_dummy))
+bank$Education <- NULL
+head(as.data.frame(education_dummy))
+
+
+numeric_vars <- c("Age", "Experience", "Income", "CCAvg", "Mortgage")
+norm_model <- preProcess(bank[, numeric_vars], method = c("range"))
+bank[, numeric_vars] <- predict(norm_model, bank[, numeric_vars])
+summary(bank[, numeric_vars])
+
+
+# Partition the data into 60% training and 40% validation
+set.seed(123)
+
+#stratified based on personal loan acceptance 
+train_index <- createDataPartition(bank$Personal.Loan, p = 0.6, list = FALSE)   
+train_data <- bank[train_index, ]
+valid_data <- bank[-train_index, ]
+
+summary(train_index)
+summary(train_data)
+summary(valid_data)
+
+
+# Separate predictors and labels for train and validation
+train_X <- train_data[, !(names(train_data) %in% c("Personal.Loan"))]
+train_Y <- train_data$Personal.Loan
+
+valid_X <- valid_data[, !(names(valid_data) %in% c("Personal.Loan"))]
+valid_Y <- valid_data$Personal.Loan
+
+
+# Create new customer 
+new_customer <- data.frame(
+  Age = 40,
+  Experience = 10,
+  Income = 84,
+  Family = 2,
+  CCAvg = 2,
+  Mortgage = 0,
+  Securities.Account = 0,
+  CD.Account = 0,
+  Online = 1,
+  Credit.Card = 1,
+  Education1 = 0,
+  Education2 = 1,
+  Education3 = 0
+)
+
+new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage")] <- 
+  predict(norm_model, new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage")])
+
+
+# Run k-nn with k=1
+prediction <- knn(train = train_X, test = new_customer, cl = train_Y, k = 1)
+
+print(paste("The predicted class for the new customer is",prediction))
+```
+
+
