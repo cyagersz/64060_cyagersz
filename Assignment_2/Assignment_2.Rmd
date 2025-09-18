@@ -25,10 +25,10 @@ education_dummy <- predict(dummy_model,newdata = bank)
 # Bind dummy vars and remove original Education
 bank <- cbind(bank, as.data.frame(education_dummy))
 bank$Education <- NULL
-head(as.data.frame(education_dummy))
+head(bank)
 
 
-numeric_vars <- c("Age", "Experience", "Income", "CCAvg", "Mortgage")
+numeric_vars <- c("Age", "Experience", "Income", "CCAvg", "Mortgage","Family")
 norm_model <- preProcess(bank[, numeric_vars], method = c("range"))
 bank[, numeric_vars] <- predict(norm_model, bank[, numeric_vars])
 summary(bank[, numeric_vars])
@@ -72,8 +72,8 @@ new_customer <- data.frame(
   Education3 = 0
 )
 
-new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage")] <- 
-  predict(norm_model, new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage")])
+new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage","Family")] <- 
+  predict(norm_model, new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage","Family")])
 
 
 # Run k-nn with k=1

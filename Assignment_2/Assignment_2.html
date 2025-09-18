@@ -384,18 +384,156 @@ head(bank)</code></pre>
 ## 4                  0          0      0          0
 ## 5                  0          0      0          1
 ## 6                  0          0      1          0</code></pre>
-<pre class="r"><code>levels(as.factor(bank$Education))</code></pre>
+<pre class="r"><code>bank$Education &lt;- as.factor(bank$Education)
+levels(bank$Education)</code></pre>
 <pre><code>## [1] &quot;1&quot; &quot;2&quot; &quot;3&quot;</code></pre>
 <pre class="r"><code>dummy_model &lt;- dummyVars(~Education,data=bank)
+education_dummy &lt;- predict(dummy_model,newdata = bank)
 
-head(predict(dummy_model,bank))</code></pre>
-<pre><code>##   Education
-## 1         1
-## 2         1
-## 3         1
-## 4         2
-## 5         2
-## 6         2</code></pre>
+# Bind dummy vars and remove original Education
+bank &lt;- cbind(bank, as.data.frame(education_dummy))
+bank$Education &lt;- NULL
+head(bank)</code></pre>
+<pre><code>##   Age Experience Income Family CCAvg Mortgage Personal.Loan Securities.Account
+## 1  25          1     49      4   1.6        0             0                  1
+## 2  45         19     34      3   1.5        0             0                  1
+## 3  39         15     11      1   1.0        0             0                  0
+## 4  35          9    100      1   2.7        0             0                  0
+## 5  35          8     45      4   1.0        0             0                  0
+## 6  37         13     29      4   0.4      155             0                  0
+##   CD.Account Online CreditCard Education.1 Education.2 Education.3
+## 1          0      0          0           1           0           0
+## 2          0      0          0           1           0           0
+## 3          0      0          0           1           0           0
+## 4          0      0          0           0           1           0
+## 5          0      0          1           0           1           0
+## 6          0      1          0           0           1           0</code></pre>
+<pre class="r"><code>numeric_vars &lt;- c(&quot;Age&quot;, &quot;Experience&quot;, &quot;Income&quot;, &quot;CCAvg&quot;, &quot;Mortgage&quot;,&quot;Family&quot;)
+norm_model &lt;- preProcess(bank[, numeric_vars], method = c(&quot;range&quot;))
+bank[, numeric_vars] &lt;- predict(norm_model, bank[, numeric_vars])
+summary(bank[, numeric_vars])</code></pre>
+<pre><code>##       Age           Experience         Income           CCAvg       
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.2727   1st Qu.:0.2826   1st Qu.:0.1435   1st Qu.:0.0700  
+##  Median :0.5000   Median :0.5000   Median :0.2593   Median :0.1500  
+##  Mean   :0.5077   Mean   :0.5023   Mean   :0.3045   Mean   :0.1938  
+##  3rd Qu.:0.7273   3rd Qu.:0.7174   3rd Qu.:0.4167   3rd Qu.:0.2500  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##     Mortgage           Family      
+##  Min.   :0.00000   Min.   :0.0000  
+##  1st Qu.:0.00000   1st Qu.:0.0000  
+##  Median :0.00000   Median :0.3333  
+##  Mean   :0.08897   Mean   :0.4655  
+##  3rd Qu.:0.15906   3rd Qu.:0.6667  
+##  Max.   :1.00000   Max.   :1.0000</code></pre>
+<pre class="r"><code># Partition the data into 60% training and 40% validation
+set.seed(123)
+
+#stratified based on personal loan acceptance 
+train_index &lt;- createDataPartition(bank$Personal.Loan, p = 0.6, list = FALSE)   
+train_data &lt;- bank[train_index, ]
+valid_data &lt;- bank[-train_index, ]
+
+summary(train_index)</code></pre>
+<pre><code>##    Resample1   
+##  Min.   :   1  
+##  1st Qu.:1258  
+##  Median :2510  
+##  Mean   :2510  
+##  3rd Qu.:3771  
+##  Max.   :4999</code></pre>
+<pre class="r"><code>summary(train_data)</code></pre>
+<pre><code>##       Age           Experience         Income           Family      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.2955   1st Qu.:0.2826   1st Qu.:0.1435   1st Qu.:0.0000  
+##  Median :0.5227   Median :0.5000   Median :0.2593   Median :0.3333  
+##  Mean   :0.5097   Mean   :0.5045   Mean   :0.3028   Mean   :0.4663  
+##  3rd Qu.:0.7273   3rd Qu.:0.7174   3rd Qu.:0.4028   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##      CCAvg           Mortgage       Personal.Loan     Securities.Account
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000     
+##  1st Qu.:0.0700   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000     
+##  Median :0.1500   Median :0.00000   Median :0.00000   Median :0.000     
+##  Mean   :0.1924   Mean   :0.08707   Mean   :0.09267   Mean   :0.103     
+##  3rd Qu.:0.2600   3rd Qu.:0.15433   3rd Qu.:0.00000   3rd Qu.:0.000     
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.00000   Max.   :1.000     
+##    CD.Account        Online         CreditCard      Education.1   
+##  Min.   :0.000   Min.   :0.0000   Min.   :0.0000   Min.   :0.000  
+##  1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000  
+##  Median :0.000   Median :1.0000   Median :0.0000   Median :0.000  
+##  Mean   :0.059   Mean   :0.5997   Mean   :0.2943   Mean   :0.424  
+##  3rd Qu.:0.000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.000  
+##  Max.   :1.000   Max.   :1.0000   Max.   :1.0000   Max.   :1.000  
+##   Education.2     Education.3   
+##  Min.   :0.000   Min.   :0.000  
+##  1st Qu.:0.000   1st Qu.:0.000  
+##  Median :0.000   Median :0.000  
+##  Mean   :0.285   Mean   :0.291  
+##  3rd Qu.:1.000   3rd Qu.:1.000  
+##  Max.   :1.000   Max.   :1.000</code></pre>
+<pre class="r"><code>summary(valid_data)</code></pre>
+<pre><code>##       Age           Experience         Income           Family      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.2727   1st Qu.:0.2826   1st Qu.:0.1435   1st Qu.:0.0000  
+##  Median :0.5000   Median :0.5000   Median :0.2546   Median :0.3333  
+##  Mean   :0.5046   Mean   :0.4990   Mean   :0.3071   Mean   :0.4642  
+##  3rd Qu.:0.7273   3rd Qu.:0.7174   3rd Qu.:0.4259   3rd Qu.:0.6667  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :0.9074   Max.   :1.0000  
+##      CCAvg           Mortgage       Personal.Loan   Securities.Account
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.000   Min.   :0.0000    
+##  1st Qu.:0.0700   1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.0000    
+##  Median :0.1600   Median :0.00000   Median :0.000   Median :0.0000    
+##  Mean   :0.1959   Mean   :0.09184   Mean   :0.101   Mean   :0.1065    
+##  3rd Qu.:0.2500   3rd Qu.:0.16220   3rd Qu.:0.000   3rd Qu.:0.0000    
+##  Max.   :1.0000   Max.   :0.94646   Max.   :1.000   Max.   :1.0000    
+##    CD.Account         Online         CreditCard      Education.1   
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000  
+##  Median :0.0000   Median :1.0000   Median :0.0000   Median :0.000  
+##  Mean   :0.0625   Mean   :0.5925   Mean   :0.2935   Mean   :0.412  
+##  3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.000  
+##   Education.2     Education.3   
+##  Min.   :0.000   Min.   :0.000  
+##  1st Qu.:0.000   1st Qu.:0.000  
+##  Median :0.000   Median :0.000  
+##  Mean   :0.274   Mean   :0.314  
+##  3rd Qu.:1.000   3rd Qu.:1.000  
+##  Max.   :1.000   Max.   :1.000</code></pre>
+<pre class="r"><code># Separate predictors and labels for train and validation
+train_X &lt;- train_data[, !(names(train_data) %in% c(&quot;Personal.Loan&quot;))]
+train_Y &lt;- train_data$Personal.Loan
+
+valid_X &lt;- valid_data[, !(names(valid_data) %in% c(&quot;Personal.Loan&quot;))]
+valid_Y &lt;- valid_data$Personal.Loan
+
+
+# Create new customer 
+new_customer &lt;- data.frame(
+  Age = 40,
+  Experience = 10,
+  Income = 84,
+  Family = 2,
+  CCAvg = 2,
+  Mortgage = 0,
+  Securities.Account = 0,
+  CD.Account = 0,
+  Online = 1,
+  Credit.Card = 1,
+  Education1 = 0,
+  Education2 = 1,
+  Education3 = 0
+)
+
+new_customer[, c(&quot;Age&quot;, &quot;Experience&quot;, &quot;Income&quot;, &quot;CCAvg&quot;, &quot;Mortgage&quot;,&quot;Family&quot;)] &lt;- 
+  predict(norm_model, new_customer[, c(&quot;Age&quot;, &quot;Experience&quot;, &quot;Income&quot;, &quot;CCAvg&quot;, &quot;Mortgage&quot;,&quot;Family&quot;)])
+
+
+# Run k-nn with k=1
+prediction &lt;- knn(train = train_X, test = new_customer, cl = train_Y, k = 1)
+
+print(paste(&quot;The predicted class for the new customer is&quot;,prediction))</code></pre>
+<pre><code>## [1] &quot;The predicted class for the new customer is 0&quot;</code></pre>
 
 
 
