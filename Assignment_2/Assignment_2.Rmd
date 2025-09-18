@@ -79,7 +79,53 @@ new_customer[, c("Age", "Experience", "Income", "CCAvg", "Mortgage","Family")] <
 # Run k-nn with k=1
 prediction <- knn(train = train_X, test = new_customer, cl = train_Y, k = 1)
 
-print(paste("The predicted class for the new customer is",prediction))
+# Question 1 answer is the customer will not accept the loan 
+print(paste("The customer classification is", prediction))
 ```
 
+Hypertuning using validation
+```{r}
+library("caret")
+library("FNN")
+library("class")
 
+
+accuracy.df <- data.frame(k = seq(1, 20, 1), Accuracy = rep(0, 20))
+
+train_Y <- factor(train_Y)
+valid_Y <- factor(valid_Y)
+
+# compute knn for different k on validation.
+for(i in 1:20) {
+  knn.pred <- knn(train_X, valid_X, 
+                  cl = train_Y, k = i)
+  accuracy.df[i, 2] <- confusionMatrix(knn.pred, valid_Y)$overall["Accuracy"] 
+}
+accuracy.df
+
+
+
+
+
+
+```
+Based on the validation accuracy k=1 has the highest accuracy of 96.2% showing that the model fits but could lead to overfitting. As k increases the accuracy drops a bit but remains high. Choosing a k=3  could provide a better balance between overfitting and ignoring useful information.k=3 is a good choice to balance bias and variance for this classification.
+
+Confusion Matrix
+```{r}
+library("gmodels")
+
+best_k <- 3
+
+knn.best <- knn(train = train_X, test = valid_X, cl = train_Y, k = best_k)
+CrossTable(x = valid_Y, y = knn.best, prop.chisq = FALSE)
+
+```
+
+Classify customer with best k
+```{r}
+
+prediction2 <- knn(train = train_X, test = new_customer, cl = train_Y, k = best_k)
+
+print(paste("The customer classification is", prediction))
+```
