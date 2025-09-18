@@ -127,5 +127,5 @@ Classify customer with best k
 
 prediction2 <- knn(train = train_X, test = new_customer, cl = train_Y, k = best_k)
 
-print(paste("The customer classification is", prediction))
+print(paste("The customer classification is", prediction2))
 ```

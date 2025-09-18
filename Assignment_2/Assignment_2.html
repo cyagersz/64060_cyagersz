@@ -532,8 +532,98 @@ new_customer[, c(&quot;Age&quot;, &quot;Experience&quot;, &quot;Income&quot;, &q
 # Run k-nn with k=1
 prediction &lt;- knn(train = train_X, test = new_customer, cl = train_Y, k = 1)
 
-print(paste(&quot;The predicted class for the new customer is&quot;,prediction))</code></pre>
-<pre><code>## [1] &quot;The predicted class for the new customer is 0&quot;</code></pre>
+# Question 1 answer is the customer will not accept the loan 
+print(paste(&quot;The customer classification is&quot;, prediction))</code></pre>
+<pre><code>## [1] &quot;The customer classification is 0&quot;</code></pre>
+<p>Hypertuning using validation</p>
+<pre class="r"><code>library(&quot;caret&quot;)
+library(&quot;FNN&quot;)
+library(&quot;class&quot;)
+
+
+accuracy.df &lt;- data.frame(k = seq(1, 20, 1), Accuracy = rep(0, 20))
+
+train_Y &lt;- factor(train_Y)
+valid_Y &lt;- factor(valid_Y)
+
+# compute knn for different k on validation.
+for(i in 1:20) {
+  knn.pred &lt;- knn(train_X, valid_X, 
+                  cl = train_Y, k = i)
+  accuracy.df[i, 2] &lt;- confusionMatrix(knn.pred, valid_Y)$overall[&quot;Accuracy&quot;] 
+}
+accuracy.df</code></pre>
+<pre><code>##     k Accuracy
+## 1   1   0.9620
+## 2   2   0.9495
+## 3   3   0.9600
+## 4   4   0.9465
+## 5   5   0.9500
+## 6   6   0.9385
+## 7   7   0.9420
+## 8   8   0.9370
+## 9   9   0.9385
+## 10 10   0.9315
+## 11 11   0.9340
+## 12 12   0.9275
+## 13 13   0.9270
+## 14 14   0.9215
+## 15 15   0.9250
+## 16 16   0.9205
+## 17 17   0.9220
+## 18 18   0.9210
+## 19 19   0.9225
+## 20 20   0.9180</code></pre>
+<p>Based on the validation accuracy k=1 has the highest accuracy of
+96.2% showing that the model fits but could lead to overfitting. As k
+increases the accuracy drops a bit but remains high. Choosing a k=3
+could provide a better balance between overfitting and ignoring useful
+information.k=3 is a good choice to balance bias and variance for this
+classification.</p>
+<p>Confusion Matrix</p>
+<pre class="r"><code>library(&quot;gmodels&quot;)
+
+best_k &lt;- 3
+
+knn.best &lt;- knn(train = train_X, test = valid_X, cl = train_Y, k = best_k)
+CrossTable(x = valid_Y, y = knn.best, prop.chisq = FALSE)</code></pre>
+<pre><code>## 
+##  
+##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |           N / Row Total |
+## |           N / Col Total |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  2000 
+## 
+##  
+##              | knn.best 
+##      valid_Y |         0 |         1 | Row Total | 
+## -------------|-----------|-----------|-----------|
+##            0 |      1792 |         6 |      1798 | 
+##              |     0.997 |     0.003 |     0.899 | 
+##              |     0.960 |     0.045 |           | 
+##              |     0.896 |     0.003 |           | 
+## -------------|-----------|-----------|-----------|
+##            1 |        74 |       128 |       202 | 
+##              |     0.366 |     0.634 |     0.101 | 
+##              |     0.040 |     0.955 |           | 
+##              |     0.037 |     0.064 |           | 
+## -------------|-----------|-----------|-----------|
+## Column Total |      1866 |       134 |      2000 | 
+##              |     0.933 |     0.067 |           | 
+## -------------|-----------|-----------|-----------|
+## 
+## </code></pre>
+<p>Classify customer with best k</p>
+<pre class="r"><code>prediction2 &lt;- knn(train = train_X, test = new_customer, cl = train_Y, k = 200)
+
+print(paste(&quot;The customer classification is&quot;, prediction2))</code></pre>
+<pre><code>## [1] &quot;The customer classification is 0&quot;</code></pre>
 
 
 
