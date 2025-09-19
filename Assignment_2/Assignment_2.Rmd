@@ -102,12 +102,6 @@ for(i in 1:20) {
   accuracy.df[i, 2] <- confusionMatrix(knn.pred, valid_Y)$overall["Accuracy"] 
 }
 accuracy.df
-
-
-
-
-
-
 ```
 Based on the validation accuracy k=1 has the highest accuracy of 96.2% showing that the model fits but could lead to overfitting. As k increases the accuracy drops a bit but remains high. Choosing a k=3  could provide a better balance between overfitting and ignoring useful information.k=3 is a good choice to balance bias and variance for this classification.
 
@@ -125,7 +119,66 @@ CrossTable(x = valid_Y, y = knn.best, prop.chisq = FALSE)
 Classify customer with best k
 ```{r}
 
+
 prediction2 <- knn(train = train_X, test = new_customer, cl = train_Y, k = best_k)
 
 print(paste("The customer classification is", prediction2))
+```
+
+
+Repartition the data 50%:30%:20%
+```{r}
+
+library("class")
+library("FNN")
+library("gmodels")
+
+
+set.seed(123)
+
+test_index <- createDataPartition(bank$Personal.Loan, p = 0.2, list = FALSE) # 20%  
+test_data <- bank[test_index, ]
+bank_data <- bank[-test_index, ]
+
+
+train_index <- createDataPartition(bank_data$Personal.Loan, p = .625, list = FALSE) # 50%
+train_data <- bank_data[train_index, ]
+valid_data <- bank_data[-train_index, ] # 30% 
+
+summary(test_data)
+summary(train_data)
+summary(valid_data)
+
+
+
+# Training
+train_X <- train_data[, !(names(train_data) %in% c("Personal.Loan"))]
+train_Y <- factor(train_data$Personal.Loan)
+
+# Validation
+valid_X <- valid_data[, !(names(valid_data) %in% c("Personal.Loan"))]
+valid_Y <- factor(valid_data$Personal.Loan)
+
+# Test
+test_X <- test_data[, !(names(test_data) %in% c("Personal.Loan"))]
+test_Y <- factor(test_data$Personal.Loan)
+
+
+
+best_k <- 3
+
+# Predictions
+train_pred <- knn(train = train_X, test = train_X, cl = train_Y, k = best_k)
+valid_pred <- knn(train = train_X, test = valid_X, cl = train_Y, k = best_k)
+test_pred <- knn(train = train_X, test = test_X, cl = train_Y, k = best_k)
+
+
+# Training
+CrossTable(x = train_Y, y = train_pred, prop.chisq = FALSE)
+
+# Validation
+CrossTable(x = valid_Y, y = valid_pred, prop.chisq = FALSE)
+
+# Test
+CrossTable(x = test_Y, y = test_pred, prop.chisq = FALSE)
 ```
