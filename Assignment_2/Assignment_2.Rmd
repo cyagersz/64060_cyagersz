@@ -182,3 +182,5 @@ CrossTable(x = valid_Y, y = valid_pred, prop.chisq = FALSE)
 # Test
 CrossTable(x = test_Y, y = test_pred, prop.chisq = FALSE)
 ```
+
+The model performed well across all three data sets using k = 3, showing high overall accuracy and good sensitivity. Sensitivity was highest on the training set 75.2%, it dropped on the validation 63.0% and test sets 56.3%. This decline is expected and shows how the model generalizes to unseen data. This is from moving from known data to more challenging, real-world predictions. Also, the lower sensitivity is partly due to class imbalance, as only about 9% of customers accepted a loan. This makes it more difficult for k-NN to correctly identify the minority class. As the model sees fewer examples of loan accepters in the validation and test sets.
