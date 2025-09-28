@@ -620,10 +620,248 @@ CrossTable(x = valid_Y, y = knn.best, prop.chisq = FALSE)</code></pre>
 ## 
 ## </code></pre>
 <p>Classify customer with best k</p>
-<pre class="r"><code>prediction2 &lt;- knn(train = train_X, test = new_customer, cl = train_Y, k = 200)
+<pre class="r"><code>prediction2 &lt;- knn(train = train_X, test = new_customer, cl = train_Y, k = best_k)
 
 print(paste(&quot;The customer classification is&quot;, prediction2))</code></pre>
 <pre><code>## [1] &quot;The customer classification is 0&quot;</code></pre>
+<p>Repartition the data 50%:30%:20%</p>
+<pre class="r"><code>library(&quot;class&quot;)
+library(&quot;FNN&quot;)
+library(&quot;gmodels&quot;)
+
+
+set.seed(123)
+
+test_index &lt;- createDataPartition(bank$Personal.Loan, p = 0.2, list = FALSE) # 20%  
+test_data &lt;- bank[test_index, ]
+bank_data &lt;- bank[-test_index, ]
+
+
+train_index &lt;- createDataPartition(bank_data$Personal.Loan, p = .625, list = FALSE) # 50%
+train_data &lt;- bank_data[train_index, ]
+valid_data &lt;- bank_data[-train_index, ] # 30% 
+
+summary(test_data)</code></pre>
+<pre><code>##       Age            Experience          Income           Family      
+##  Min.   :0.02273   Min.   :0.02174   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.27273   1st Qu.:0.28261   1st Qu.:0.1435   1st Qu.:0.0000  
+##  Median :0.52273   Median :0.52174   Median :0.2593   Median :0.3333  
+##  Mean   :0.51557   Mean   :0.50852   Mean   :0.2973   Mean   :0.4617  
+##  3rd Qu.:0.75000   3rd Qu.:0.71739   3rd Qu.:0.3935   3rd Qu.:1.0000  
+##  Max.   :1.00000   Max.   :0.97826   Max.   :0.9722   Max.   :1.0000  
+##      CCAvg           Mortgage       Personal.Loan   Securities.Account
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.000   Min.   :0.00      
+##  1st Qu.:0.0700   1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.00      
+##  Median :0.1500   Median :0.00000   Median :0.000   Median :0.00      
+##  Mean   :0.1901   Mean   :0.08842   Mean   :0.087   Mean   :0.11      
+##  3rd Qu.:0.2500   3rd Qu.:0.15630   3rd Qu.:0.000   3rd Qu.:0.00      
+##  Max.   :0.8600   Max.   :0.97165   Max.   :1.000   Max.   :1.00      
+##    CD.Account       Online        CreditCard    Education.1     Education.2   
+##  Min.   :0.00   Min.   :0.000   Min.   :0.00   Min.   :0.000   Min.   :0.000  
+##  1st Qu.:0.00   1st Qu.:0.000   1st Qu.:0.00   1st Qu.:0.000   1st Qu.:0.000  
+##  Median :0.00   Median :1.000   Median :0.00   Median :0.000   Median :0.000  
+##  Mean   :0.06   Mean   :0.595   Mean   :0.29   Mean   :0.419   Mean   :0.272  
+##  3rd Qu.:0.00   3rd Qu.:1.000   3rd Qu.:1.00   3rd Qu.:1.000   3rd Qu.:1.000  
+##  Max.   :1.00   Max.   :1.000   Max.   :1.00   Max.   :1.000   Max.   :1.000  
+##   Education.3   
+##  Min.   :0.000  
+##  1st Qu.:0.000  
+##  Median :0.000  
+##  Mean   :0.309  
+##  3rd Qu.:1.000  
+##  Max.   :1.000</code></pre>
+<pre class="r"><code>summary(train_data)</code></pre>
+<pre><code>##       Age           Experience         Income           Family      
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.2727   1st Qu.:0.2826   1st Qu.:0.1389   1st Qu.:0.0000  
+##  Median :0.5000   Median :0.5000   Median :0.2500   Median :0.3333  
+##  Mean   :0.5020   Mean   :0.4978   Mean   :0.3030   Mean   :0.4675  
+##  3rd Qu.:0.7273   3rd Qu.:0.6957   3rd Qu.:0.4178   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :0.9120   Max.   :1.0000  
+##      CCAvg           Mortgage       Personal.Loan    Securities.Account
+##  Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000    
+##  1st Qu.:0.0670   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000    
+##  Median :0.1500   Median :0.00000   Median :0.0000   Median :0.0000    
+##  Mean   :0.1922   Mean   :0.08887   Mean   :0.1032   Mean   :0.1004    
+##  3rd Qu.:0.2500   3rd Qu.:0.15748   3rd Qu.:0.0000   3rd Qu.:0.0000    
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000    
+##    CD.Account        Online        CreditCard      Education.1    
+##  Min.   :0.000   Min.   :0.000   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.000   1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.000   Median :1.000   Median :0.0000   Median :0.0000  
+##  Mean   :0.056   Mean   :0.596   Mean   :0.2968   Mean   :0.4156  
+##  3rd Qu.:0.000   3rd Qu.:1.000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.000   Max.   :1.000   Max.   :1.0000   Max.   :1.0000  
+##   Education.2     Education.3    
+##  Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :0.000   Median :0.0000  
+##  Mean   :0.286   Mean   :0.2984  
+##  3rd Qu.:1.000   3rd Qu.:1.0000  
+##  Max.   :1.000   Max.   :1.0000</code></pre>
+<pre class="r"><code>summary(valid_data)</code></pre>
+<pre><code>##       Age           Experience          Income           Family      
+##  Min.   :0.0000   Min.   :0.02174   Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.2955   1st Qu.:0.30435   1st Qu.:0.1481   1st Qu.:0.0000  
+##  Median :0.5000   Median :0.50000   Median :0.2639   Median :0.3333  
+##  Mean   :0.5119   Mean   :0.50562   Mean   :0.3119   Mean   :0.4647  
+##  3rd Qu.:0.7273   3rd Qu.:0.71739   3rd Qu.:0.4306   3rd Qu.:0.6667  
+##  Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+##      CCAvg          Mortgage       Personal.Loan  Securities.Account
+##  Min.   :0.000   Min.   :0.00000   Min.   :0.00   Min.   :0.0000    
+##  1st Qu.:0.070   1st Qu.:0.00000   1st Qu.:0.00   1st Qu.:0.0000    
+##  Median :0.160   Median :0.00000   Median :0.00   Median :0.0000    
+##  Mean   :0.199   Mean   :0.08952   Mean   :0.09   Mean   :0.1073    
+##  3rd Qu.:0.260   3rd Qu.:0.16220   3rd Qu.:0.00   3rd Qu.:0.0000    
+##  Max.   :1.000   Max.   :0.89921   Max.   :1.00   Max.   :1.0000    
+##    CD.Account        Online         CreditCard     Education.1    
+##  Min.   :0.000   Min.   :0.0000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :0.000   Median :1.0000   Median :0.000   Median :0.0000  
+##  Mean   :0.068   Mean   :0.5993   Mean   :0.292   Mean   :0.4253  
+##  3rd Qu.:0.000   3rd Qu.:1.0000   3rd Qu.:1.000   3rd Qu.:1.0000  
+##  Max.   :1.000   Max.   :1.0000   Max.   :1.000   Max.   :1.0000  
+##   Education.2      Education.3    
+##  Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :0.0000   Median :0.0000  
+##  Mean   :0.2773   Mean   :0.2973  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000</code></pre>
+<pre class="r"><code># Training
+train_X &lt;- train_data[, !(names(train_data) %in% c(&quot;Personal.Loan&quot;))]
+train_Y &lt;- factor(train_data$Personal.Loan)
+
+# Validation
+valid_X &lt;- valid_data[, !(names(valid_data) %in% c(&quot;Personal.Loan&quot;))]
+valid_Y &lt;- factor(valid_data$Personal.Loan)
+
+# Test
+test_X &lt;- test_data[, !(names(test_data) %in% c(&quot;Personal.Loan&quot;))]
+test_Y &lt;- factor(test_data$Personal.Loan)
+
+
+
+best_k &lt;- 3
+
+# Predictions
+train_pred &lt;- knn(train = train_X, test = train_X, cl = train_Y, k = best_k)
+valid_pred &lt;- knn(train = train_X, test = valid_X, cl = train_Y, k = best_k)
+test_pred &lt;- knn(train = train_X, test = test_X, cl = train_Y, k = best_k)
+
+
+# Training
+CrossTable(x = train_Y, y = train_pred, prop.chisq = FALSE)</code></pre>
+<pre><code>## 
+##  
+##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |           N / Row Total |
+## |           N / Col Total |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  2500 
+## 
+##  
+##              | train_pred 
+##      train_Y |         0 |         1 | Row Total | 
+## -------------|-----------|-----------|-----------|
+##            0 |      2233 |         9 |      2242 | 
+##              |     0.996 |     0.004 |     0.897 | 
+##              |     0.972 |     0.044 |           | 
+##              |     0.893 |     0.004 |           | 
+## -------------|-----------|-----------|-----------|
+##            1 |        64 |       194 |       258 | 
+##              |     0.248 |     0.752 |     0.103 | 
+##              |     0.028 |     0.956 |           | 
+##              |     0.026 |     0.078 |           | 
+## -------------|-----------|-----------|-----------|
+## Column Total |      2297 |       203 |      2500 | 
+##              |     0.919 |     0.081 |           | 
+## -------------|-----------|-----------|-----------|
+## 
+## </code></pre>
+<pre class="r"><code># Validation
+CrossTable(x = valid_Y, y = valid_pred, prop.chisq = FALSE)</code></pre>
+<pre><code>## 
+##  
+##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |           N / Row Total |
+## |           N / Col Total |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  1500 
+## 
+##  
+##              | valid_pred 
+##      valid_Y |         0 |         1 | Row Total | 
+## -------------|-----------|-----------|-----------|
+##            0 |      1352 |        13 |      1365 | 
+##              |     0.990 |     0.010 |     0.910 | 
+##              |     0.964 |     0.133 |           | 
+##              |     0.901 |     0.009 |           | 
+## -------------|-----------|-----------|-----------|
+##            1 |        50 |        85 |       135 | 
+##              |     0.370 |     0.630 |     0.090 | 
+##              |     0.036 |     0.867 |           | 
+##              |     0.033 |     0.057 |           | 
+## -------------|-----------|-----------|-----------|
+## Column Total |      1402 |        98 |      1500 | 
+##              |     0.935 |     0.065 |           | 
+## -------------|-----------|-----------|-----------|
+## 
+## </code></pre>
+<pre class="r"><code># Test
+CrossTable(x = test_Y, y = test_pred, prop.chisq = FALSE)</code></pre>
+<pre><code>## 
+##  
+##    Cell Contents
+## |-------------------------|
+## |                       N |
+## |           N / Row Total |
+## |           N / Col Total |
+## |         N / Table Total |
+## |-------------------------|
+## 
+##  
+## Total Observations in Table:  1000 
+## 
+##  
+##              | test_pred 
+##       test_Y |         0 |         1 | Row Total | 
+## -------------|-----------|-----------|-----------|
+##            0 |       908 |         5 |       913 | 
+##              |     0.995 |     0.005 |     0.913 | 
+##              |     0.960 |     0.093 |           | 
+##              |     0.908 |     0.005 |           | 
+## -------------|-----------|-----------|-----------|
+##            1 |        38 |        49 |        87 | 
+##              |     0.437 |     0.563 |     0.087 | 
+##              |     0.040 |     0.907 |           | 
+##              |     0.038 |     0.049 |           | 
+## -------------|-----------|-----------|-----------|
+## Column Total |       946 |        54 |      1000 | 
+##              |     0.946 |     0.054 |           | 
+## -------------|-----------|-----------|-----------|
+## 
+## </code></pre>
+<p>The model performed well across all three data sets using k = 3,
+showing high overall accuracy and good sensitivity. Sensitivity was
+highest on the training set 75.2%, it dropped on the validation 63.0%
+and test sets 56.3%. This decline is expected and shows how the model
+generalizes to unseen data. This is from moving from known data to more
+challenging, real-world predictions. Also, the lower sensitivity is
+partly due to class imbalance, as only about 9% of customers accepted a
+loan. This makes it more difficult for k-NN to correctly identify the
+minority class. As the model sees fewer examples of loan accepters in
+the validation and test sets.</p>
 
 
 
