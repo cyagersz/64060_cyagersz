@@ -65,11 +65,94 @@ Create two separate pivot tables for the training data. One will have Loan (rows
 function of Online (columns) and the other will have Loan (rows) as a function of CC.
 
 ```{r}
-table_loan_online <- table(Train[,c(1,3)])
 
-table_loan_cc <- table((Train[,c(2,3)]))
 
+# Loan vs Online
+table_loan_online <- table(Train$Personal.Loan, Train$Online)
 print(table_loan_online)
+
+# Loan vs CreditCard
+table_loan_cc <- table(Train$Personal.Loan, Train$CreditCard)
 print(table_loan_cc)
 
+
+```
+
+Question D.
+Compute the following quantities [P(A | B) means “the probability ofA given B”]:
+i. P(CC = 1 | Loan = 1) (the proportion of credit card holders among the loan acceptors)
+ii. P(Online = 1 | Loan = 1)
+iii. P(Loan = 1) (the proportion of loan acceptors)
+iv. P(CC = 1 | Loan = 0)
+v. P(Online = 1 | Loan = 0)
+vi. P(Loan = 0)
+```{r}
+#i. P(CC = 1 | Loan = 1)
+cc_1_loan_1 <- nrow(subset(Train, CreditCard == 1 & Personal.Loan == 1))
+loan_1_total <- nrow(subset(Train, Personal.Loan == 1))
+
+p_cc_1_given_loan_1 <- cc_1_loan_1 / loan_1_total
+print(p_cc_1_given_loan_1)
+
+
+#ii. P(Online = 1 | Loan = 1)
+
+online_1_loan_1 <- nrow(subset(Train,Online == 1 & Personal.Loan == 1))
+p_online_1_given_loan_1 <- online_1_loan_1 / loan_1_total
+print(p_online_1_given_loan_1)
+
+#iii. P(Loan = 1)
+
+
+loan_acceptors <- loan_1_total / nrow(Train)
+print(loan_acceptors)
+
+
+#iv. iv. P(CC = 1 | Loan = 0)
+
+cc_1_loan_0 <- nrow(subset(Train,CreditCard ==1 & Personal.Loan ==0))
+loan_0_total <- nrow(subset(Train,Personal.Loan == 0))
+p_cc_1_loan_0 <- cc_1_loan_0 / loan_0_total
+
+print(p_cc_1_loan_0)
+
+#v.  P(Online = 1 | Loan = 0)
+
+online_1_loan_0 <- nrow(subset(Train,Online ==1 & Personal.Loan ==0))
+p_online_1_loan_0 <- online_1_loan_0 / loan_0_total
+print(p_online_1_loan_0)
+
+#vi.P(Loan = 0)
+p_loan_0 <- loan_0_total / nrow(Train)
+print(p_loan_0)
+```
+
+Question E. 
+Use the quantities computed above to compute the naive Bayes probability P(Loan = 1 | CC= 1, Online = 1)
+```{r}
+# Numerator for Loan = 1
+num_1 <- p_cc_1_given_loan_1 * p_online_1_given_loan_1 * loan_acceptors
+
+# Numerator for Loan = 0
+num_0 <- p_cc_1_loan_0 * p_online_1_loan_0 * p_loan_0
+
+# Final probability
+p_loan_1_given_cc_online <- num_1 / (num_1 + num_0)
+print(p_loan_1_given_cc_online)
+
+
+```
+Question F.
+Compare this value with the one obtained from the pivot table in (B). Which is a more
+accurate estimate?
+  
+  The pivot table probability is the direct observed frequency and therefore the most accurate for this particular subset of data. However, the Naive Bayes probability, which assumes independence between predictors given the outcome, can provide a better estimate when dealing with smaller or unseen data groups by leveraging overall patterns. Thus, while the pivot table estimate is accurate for the training data, the Naive Bayes estimate might generalize better to new data.
+  
+Question G.
+Which of the entries in this table are needed for computing P(Loan = 1 | CC = 1, Online = 1)? Run naive Bayes on the data. Examine the model output on training data, and find the entry that corresponds to P(Loan = 1 | CC = 1, Online = 1). Compare this to the number you
+obtained in (E).
+
+```{r}
+nb_model <- naiveBayes(Personal.Loan~CreditCard+Online,data = Train)
+nb_model
 ```
