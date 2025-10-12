@@ -20,7 +20,7 @@ bank <- bank[, c("Online", "CreditCard", "Personal.Loan")]
 head(bank)
 
 
-# Create data partition 60% Training and Remaining 40%n is Test
+# Create data partition 60% Training and Remaining 40% is Test
 Index_Train <- createDataPartition(bank$Personal.Loan,p=.6,list=FALSE)
 Train <- bank[Index_Train,]
 Test <- bank[-Index_Train,]
