@@ -56,7 +56,11 @@ online banking services. Looking at the pivot table, what is the probability tha
 
 ```{r}
 
-print(pivot_table[4,4]/ (pivot_table[2,4]+pivot_table[4,4]))
+loan_accept = pivot_table[pivot_table$Personal.Loan == 1 & pivot_table$CreditCard == 1, "1"]
+total = pivot_table[pivot_table$CreditCard == 1 & pivot_table$Personal.Loan %in% c(0,1), "1"]
+prob_b <- loan_accept / sum(total)
+print(prob_b)
+
 
 ```
 
@@ -79,7 +83,7 @@ print(table_loan_cc)
 ```
 
 Question D.
-Compute the following quantities [P(A | B) means “the probability ofA given B”]:
+Compute the following quantities [P(A | B) means “the probability of A given B”]:
 i. P(CC = 1 | Loan = 1) (the proportion of credit card holders among the loan acceptors)
 ii. P(Online = 1 | Loan = 1)
 iii. P(Loan = 1) (the proportion of loan acceptors)
@@ -155,4 +159,17 @@ obtained in (E).
 ```{r}
 nb_model <- naiveBayes(Personal.Loan~CreditCard+Online,data = Train)
 nb_model
+
+# Predict for a new customer with CC = 1 and Online = 1
+new_customer <- data.frame(CreditCard = 1, Online = 1)
+predicted_probs <- predict(nb_model, new_customer, type = "raw")
+
+# Show the predicted probability for Loan = 1
+print(predicted_probs)
+
+
 ```
+
+The Naive Bayes model predicts a probability of P(Loan = 1 | CC = 1, Online = 1) = 0.1118139, which is very close to the manually calculated probability from part E of 0.1088606. 
+
+The small difference is due to rounding or possible smoothing applied by the naive Bayes function in R. Overall, both methods give very similar results, which confirms the correctness of the manual Bayes formula application in part (E).
