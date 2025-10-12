@@ -150,7 +150,7 @@ Question F.
 Compare this value with the one obtained from the pivot table in (B). Which is a more
 accurate estimate?
   
-  The pivot table probability is the direct observed frequency and therefore the most accurate for this particular subset of data. The Naive Bayes probability assumes independence between predictors given the outcome, can provide a better estimate when dealing with smaller or unseen data groups by leveraging overall patterns. Thus, while the pivot table estimate is accurate for the training data, the Naive Bayes estimate might generalize better to new data.
+  The pivot table probability is the direct observed frequency and therefore the most accurate for this particular subset of data. The Naive Bayes probability assumes independence between predictors given the outcome can provide a better estimate when dealing with smaller or unseen data groups by leveraging overall patterns. While the pivot table estimate is accurate for the training data, the Naive Bayes estimate might generalize better to new data.
   
 Question G.
 Which of the entries in this table are needed for computing P(Loan = 1 | CC = 1, Online = 1)? Run naive Bayes on the data. Examine the model output on training data, and find the entry that corresponds to P(Loan = 1 | CC = 1, Online = 1). Compare this to the number you
@@ -170,6 +170,5 @@ print(predicted_probs)
 
 ```
 
-The Naive Bayes model predicts a probability of P(Loan = 1 | CC = 1, Online = 1) = 0.1118139, which is very close to the manually calculated probability from part E of 0.1088606. 
+The Naive Bayes model predicts a probability very close to the manually predicted probability. The small difference is due to rounding or possible smoothing applied by the naive Bayes function in R. Overall, both methods give very similar results, which confirms the correctness of the manual naive Bayes formula application in part E.
 
-The small difference is due to rounding or possible smoothing applied by the naive Bayes function in R. Overall, both methods give very similar results, which confirms the correctness of the manual Bayes formula application in part (E).

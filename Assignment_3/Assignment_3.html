@@ -389,22 +389,22 @@ Test &lt;- bank[-Index_Train,]
 
 # Summary of Training Set
 summary(Train)</code></pre>
-<pre><code>##      Online        CreditCard     Personal.Loan    
-##  Min.   :0.000   Min.   :0.0000   Min.   :0.00000  
-##  1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:0.00000  
-##  Median :1.000   Median :0.0000   Median :0.00000  
-##  Mean   :0.598   Mean   :0.2953   Mean   :0.08867  
-##  3rd Qu.:1.000   3rd Qu.:1.0000   3rd Qu.:0.00000  
-##  Max.   :1.000   Max.   :1.0000   Max.   :1.00000</code></pre>
+<pre><code>##      Online         CreditCard     Personal.Loan    
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.00000  
+##  Median :1.0000   Median :0.0000   Median :0.00000  
+##  Mean   :0.5877   Mean   :0.2933   Mean   :0.09567  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.00000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.00000</code></pre>
 <pre class="r"><code># Summary of Test Set
 summary(Test)</code></pre>
-<pre><code>##      Online        CreditCard    Personal.Loan  
-##  Min.   :0.000   Min.   :0.000   Min.   :0.000  
-##  1st Qu.:0.000   1st Qu.:0.000   1st Qu.:0.000  
-##  Median :1.000   Median :0.000   Median :0.000  
-##  Mean   :0.595   Mean   :0.292   Mean   :0.107  
-##  3rd Qu.:1.000   3rd Qu.:1.000   3rd Qu.:0.000  
-##  Max.   :1.000   Max.   :1.000   Max.   :1.000</code></pre>
+<pre><code>##      Online         CreditCard    Personal.Loan   
+##  Min.   :0.0000   Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.0000  
+##  Median :1.0000   Median :0.000   Median :0.0000  
+##  Mean   :0.6105   Mean   :0.295   Mean   :0.0965  
+##  3rd Qu.:1.0000   3rd Qu.:1.000   3rd Qu.:0.0000  
+##  Max.   :1.0000   Max.   :1.000   Max.   :1.0000</code></pre>
 <p>Question A. Create a pivot table for the training data with Online as
 a column variable, CC as a row variable, and Loan as a secondary row
 variable. The values inside the table should convey the count. In R use
@@ -416,10 +416,10 @@ pivot_table &lt;- dcast(melted,Personal.Loan+CreditCard~Online,length)</code></p
 <pre><code>## Using Personal.Loan as value column: use value.var to override.</code></pre>
 <pre class="r"><code>print(pivot_table)</code></pre>
 <pre><code>##   Personal.Loan CreditCard   0    1
-## 1             0          0 770 1158
-## 2             0          1 332  474
-## 3             1          0  74  112
-## 4             1          1  30   50</code></pre>
+## 1             0          0 796 1121
+## 2             0          1 327  469
+## 3             1          0  79  124
+## 4             1          1  35   49</code></pre>
 <p>Question B. Consider the task of classifying a customer who owns a
 bank credit card and is actively using online banking services. Looking
 at the pivot table, what is the probability that this customer will
@@ -430,7 +430,7 @@ active user of online banking services (Online = 1)]</p>
 total = pivot_table[pivot_table$CreditCard == 1 &amp; pivot_table$Personal.Loan %in% c(0,1), &quot;1&quot;]
 prob_b &lt;- loan_accept / sum(total)
 print(prob_b)</code></pre>
-<pre><code>## [1] 0.09541985</code></pre>
+<pre><code>## [1] 0.09459459</code></pre>
 <p>Question C. Create two separate pivot tables for the training data.
 One will have Loan (rows) as a function of Online (columns) and the
 other will have Loan (rows) as a function of CC.</p>
@@ -439,15 +439,15 @@ table_loan_online &lt;- table(Train$Personal.Loan, Train$Online)
 print(table_loan_online)</code></pre>
 <pre><code>##    
 ##        0    1
-##   0 1102 1632
-##   1  104  162</code></pre>
+##   0 1123 1590
+##   1  114  173</code></pre>
 <pre class="r"><code># Loan vs CreditCard
 table_loan_cc &lt;- table(Train$Personal.Loan, Train$CreditCard)
 print(table_loan_cc)</code></pre>
 <pre><code>##    
 ##        0    1
-##   0 1928  806
-##   1  186   80</code></pre>
+##   0 1917  796
+##   1  203   84</code></pre>
 <p>Question D. Compute the following quantities [P(A | B) means “the
 probability of A given B”]: i. P(CC = 1 | Loan = 1) (the proportion of
 credit card holders among the loan acceptors) ii. P(Online = 1 | Loan =
@@ -459,19 +459,19 @@ loan_1_total &lt;- nrow(subset(Train, Personal.Loan == 1))
 
 p_cc_1_given_loan_1 &lt;- cc_1_loan_1 / loan_1_total
 print(p_cc_1_given_loan_1)</code></pre>
-<pre><code>## [1] 0.3007519</code></pre>
+<pre><code>## [1] 0.2926829</code></pre>
 <pre class="r"><code>#ii. P(Online = 1 | Loan = 1)
 
 online_1_loan_1 &lt;- nrow(subset(Train,Online == 1 &amp; Personal.Loan == 1))
 p_online_1_given_loan_1 &lt;- online_1_loan_1 / loan_1_total
 print(p_online_1_given_loan_1)</code></pre>
-<pre><code>## [1] 0.6090226</code></pre>
+<pre><code>## [1] 0.6027875</code></pre>
 <pre class="r"><code>#iii. P(Loan = 1)
 
 
 loan_acceptors &lt;- loan_1_total / nrow(Train)
 print(loan_acceptors)</code></pre>
-<pre><code>## [1] 0.08866667</code></pre>
+<pre><code>## [1] 0.09566667</code></pre>
 <pre class="r"><code>#iv. iv. P(CC = 1 | Loan = 0)
 
 cc_1_loan_0 &lt;- nrow(subset(Train,CreditCard ==1 &amp; Personal.Loan ==0))
@@ -479,17 +479,17 @@ loan_0_total &lt;- nrow(subset(Train,Personal.Loan == 0))
 p_cc_1_loan_0 &lt;- cc_1_loan_0 / loan_0_total
 
 print(p_cc_1_loan_0)</code></pre>
-<pre><code>## [1] 0.2948061</code></pre>
+<pre><code>## [1] 0.2934021</code></pre>
 <pre class="r"><code>#v.  P(Online = 1 | Loan = 0)
 
 online_1_loan_0 &lt;- nrow(subset(Train,Online ==1 &amp; Personal.Loan ==0))
 p_online_1_loan_0 &lt;- online_1_loan_0 / loan_0_total
 print(p_online_1_loan_0)</code></pre>
-<pre><code>## [1] 0.5969276</code></pre>
+<pre><code>## [1] 0.5860671</code></pre>
 <pre class="r"><code>#vi.P(Loan = 0)
 p_loan_0 &lt;- loan_0_total / nrow(Train)
 print(p_loan_0)</code></pre>
-<pre><code>## [1] 0.9113333</code></pre>
+<pre><code>## [1] 0.9043333</code></pre>
 <p>Question E. Use the quantities computed above to compute the naive
 Bayes probability P(Loan = 1 | CC= 1, Online = 1)</p>
 <pre class="r"><code># Numerator for Loan = 1
@@ -501,16 +501,16 @@ num_0 &lt;- p_cc_1_loan_0 * p_online_1_loan_0 * p_loan_0
 # Final probability
 p_loan_1_given_cc_online &lt;- num_1 / (num_1 + num_0)
 print(p_loan_1_given_cc_online)</code></pre>
-<pre><code>## [1] 0.09195475</code></pre>
+<pre><code>## [1] 0.0979112</code></pre>
 <p>Question F. Compare this value with the one obtained from the pivot
 table in (B). Which is a more accurate estimate?</p>
 <p>The pivot table probability is the direct observed frequency and
-therefore the most accurate for this particular subset of data. However,
-the Naive Bayes probability, which assumes independence between
-predictors given the outcome, can provide a better estimate when dealing
-with smaller or unseen data groups by leveraging overall patterns. Thus,
-while the pivot table estimate is accurate for the training data, the
-Naive Bayes estimate might generalize better to new data.</p>
+therefore the most accurate for this particular subset of data. The
+Naive Bayes probability assumes independence between predictors given
+the outcome, can provide a better estimate when dealing with smaller or
+unseen data groups by leveraging overall patterns. Thus, while the pivot
+table estimate is accurate for the training data, the Naive Bayes
+estimate might generalize better to new data.</p>
 <p>Question G. Which of the entries in this table are needed for
 computing P(Loan = 1 | CC = 1, Online = 1)? Run naive Bayes on the data.
 Examine the model output on training data, and find the entry that
@@ -527,18 +527,18 @@ nb_model</code></pre>
 ## A-priori probabilities:
 ## Y
 ##          0          1 
-## 0.91133333 0.08866667 
+## 0.90433333 0.09566667 
 ## 
 ## Conditional probabilities:
 ##    CreditCard
 ## Y        [,1]      [,2]
-##   0 0.2948061 0.4560390
-##   1 0.3007519 0.4594494
+##   0 0.2934021 0.4554051
+##   1 0.2926829 0.4557889
 ## 
 ##    Online
 ## Y        [,1]      [,2]
-##   0 0.5969276 0.4906048
-##   1 0.6090226 0.4888892</code></pre>
+##   0 0.5860671 0.4926276
+##   1 0.6027875 0.4901754</code></pre>
 <pre class="r"><code># Predict for a new customer with CC = 1 and Online = 1
 new_customer &lt;- data.frame(CreditCard = 1, Online = 1)
 predicted_probs &lt;- predict(nb_model, new_customer, type = &quot;raw&quot;)
@@ -546,7 +546,14 @@ predicted_probs &lt;- predict(nb_model, new_customer, type = &quot;raw&quot;)
 # Show the predicted probability for Loan = 1
 print(predicted_probs)</code></pre>
 <pre><code>##              0          1
-## [1,] 0.9071053 0.09289474</code></pre>
+## [1,] 0.9018471 0.09815287</code></pre>
+<p>The Naive Bayes model predicts a probability of P(Loan = 1 | CC = 1,
+Online = 1) = [predicted value], which is very close to the manually
+calculated probability from part E of [manual value].</p>
+<p>The small difference is due to rounding or possible smoothing applied
+by the naive Bayes function in R. Overall, both methods give very
+similar results, which confirms the correctness of the manual naive
+Bayes formula application in part E.</p>
 
 
 
