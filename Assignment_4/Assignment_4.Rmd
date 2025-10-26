@@ -1,5 +1,59 @@
 ---
 title: "Assignment_4"
+author: "Cole Yagersz"
 output: html_document
 ---
 
+## Introduction
+An equities analyst is studying the pharmaceutical industry and would like your help in exploring and understanding the financial data collected by her firm. Her main objective is to understand the structure of the pharmaceutical industry using some basic financial measures. Financial data gathered on 21 firms in the pharmaceutical industry are available in the file Pharmaceuticals.csv.
+
+Questions:
+Use cluster analysis to explore and analyze the given dataset as follows:
+a. Use only the numerical variables (1 to 9) to cluster the 21 firms. Justify the various choices made in conducting the cluster analysis, such as weights for different variables, the specific clustering algorithm(s) used, the number of clusters formed, and so on.
+b. Interpret the clusters with respect to the numerical variables used in forming the clusters.
+c. Is there a pattern in the clusters with respect to the numerical variables (10 to 12)? (those not used in forming the clusters)
+d. Provide an appropriate name for each cluster using any or all of the variables in the dataset.
+```{r}
+install.packages("tidyverse")
+install.packages("factoextra")
+install.packages("ISLR")
+install.packages("flexclust")
+```
+
+```{r}
+
+library(tidyverse) 
+library(factoextra) 
+library(ISLR)
+library(flexclust)
+
+# Read the dataset
+pharma <- read.csv("Pharmaceuticals.csv")
+head(pharma)
+
+
+# Just use the numerical variables 
+pharma_num <- pharma[,3:11]
+
+# Standardize the data so all variables have equal weight
+pharma_scaled <- scale(pharma_num)
+
+# Justification:
+# Scaling makes sure that large-scale variables do not dominate smaller ones 
+# This gives equal weight to each variable in clustering.
+```
+Determine the optimal number of clusters using the Elbow Method
+```{r}
+# Elbow method
+fviz_nbclust(pharma_scaled, kmeans, method = "wss") +
+  ggtitle("Elbow Method for Choosing Optimal Number of Clusters")
+
+```
+
+```{r}
+set.seed(123)  # ensures reproducibility
+km3 <- kmeans(pharma_scaled, centers = 3, nstart = 25)
+
+print(km3)
+
+```
