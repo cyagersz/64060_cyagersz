@@ -13,12 +13,6 @@ a. Use only the numerical variables (1 to 9) to cluster the 21 firms. Justify th
 b. Interpret the clusters with respect to the numerical variables used in forming the clusters.
 c. Is there a pattern in the clusters with respect to the numerical variables (10 to 12)? (those not used in forming the clusters)
 d. Provide an appropriate name for each cluster using any or all of the variables in the dataset.
-```{r}
-install.packages("tidyverse")
-install.packages("factoextra")
-install.packages("ISLR")
-install.packages("flexclust")
-```
 
 ```{r}
 
@@ -50,9 +44,20 @@ fviz_nbclust(pharma_scaled, kmeans, method = "wss") +
 
 ```
 
+Based on the Elbow Method plot the total within-cluster sum of squares decreases sharply up to k = 3 and levels off afterward, indicating that 3 clusters is the optimal choice.
+After Getting the most optimal k with the Elbow Method I use the kmeans method to for the clustering model.
+
 ```{r}
 set.seed(123)  # ensures reproducibility
 km3 <- kmeans(pharma_scaled, centers = 3, nstart = 25)
+
+print("The Number of Companies in each Cluster")
+print(km3$size)
+
+print("The Number of Centers")
+print(km3$centers)
+
+fviz_cluster(km3, data = pharma_scaled) # Visualize the output
 
 print(km3)
 
