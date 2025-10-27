@@ -81,6 +81,8 @@ Question C: Is there a pattern in the clusters with respect to the numerical var
 pharma_clustered <- pharma %>%
   mutate(Cluster = factor(km3$cluster))
 
+table(pharma_clustered$Cluster, pharma_clustered$Median_Recommendation)
+
 # Summarize Location of Headquarters
 table(pharma_clustered$Cluster, pharma_clustered$Location)
 
@@ -89,19 +91,21 @@ table(pharma_clustered$Cluster, pharma_clustered$Exchange)
 
 ```
 
-Cluster 1: These firms are geographically diverse. They have Locations in Canada, Germany, UK, and the US. All of them are in NYSE.
+Cluster 1: These firms are geographically diverse. They have Locations in Canada, Germany, UK, and the US. All of them are in NYSE.Their median recommendations are mixed, ranging from Hold to Strong Buy, reflecting varied analyst opinions likely due to their niche, smaller-scale operations.
 
-Cluster 2: These firms are mainly in the US which is 8 companies but have 2 in the UK and 1 in Switzerland. All of them exchange in the NYSE.
+Cluster 2: These firms are mainly in the US, which is 8 of the 11 companies but have 2 in the UK and 1 in Switzerland. All of them exchange in the NYSE. They tend to have Moderate Buy recommendations, indicating stable performance and consistent analyst confidence.
 
-Cluster 3: These firms are concentrated in France, Ireland, and the US. Where they exchange is more varied which is in AMEX, NASDAQ, and NYSE.
+Cluster 3: These firms are concentrated in France, Ireland, and the US. Where they exchange is more varied which is in AMEX, NASDAQ, and NYSE. Their recommendations range from Hold to Moderate Buy, reflecting moderate analyst optimism amid high growth but volatility.
 
-Conclusion: Clusters based on financial variables also show patterns in firm location, and stock exchange. This suggests that financial performance, geography, and market listing are related, giving further insight into the structure of the pharmaceutical industry.
+Conclusion: Clusters based on financial variables also show patterns in Median Recommendation, firm location, and stock exchange. This suggests that financial performance, geography, and market listing are related, giving further insight into the structure of the pharmaceutical industry.
 
 
 Question D: Provide an appropriate name for each cluster using any or all of the variables in the dataset
 
 Cluster 1: Niche, Low-Growth Firms
+
 Cluster 2: Established, Profitable Firms
+
 Cluster 3: High-Growth, Volatile Firms
 
 
