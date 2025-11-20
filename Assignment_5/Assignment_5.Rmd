@@ -159,8 +159,8 @@ Partition the data
 ```{r}
 set.seed(123)
 train_index <- createDataPartition(y=cereal_clusters[,1],p=.5)[[1]]
-partition_A <- cereal_numeric.df.norm[train_index, ]
-partition_B <- cereal_numeric.df.norm[-train_index, ]
+partition_A <- cereal_numeric_norm[train_index, ]
+partition_B <- cereal_numeric_norm[-train_index, ]
 ```
 
 ```{r}
@@ -193,7 +193,7 @@ partitionB_clusters <- data.frame(partition_B, Cluster = kB$cluster)
 split(rownames(partitionB_clusters), partitionB_clusters$Cluster)
 
 # Add cluster assignments to full dataset
-full_clusters <- data.frame(cereal_numeric.df.norm, Cluster = k_full$cluster)
+full_clusters <- data.frame(cereal_numeric_norm, Cluster = k_full$cluster)
 
 # List cereals in each cluster for full dataset
 split(rownames(full_clusters), full_clusters$Cluster)
@@ -211,7 +211,7 @@ Should the data be normalized? If not, how should they be used in the cluster an
 ```{r}
 
 # Compute cluster summaries for the numeric variables
-cluster_summary <- aggregate(cereal_numeric.df, by = list(Cluster = cereal_clusters$Cluster), FUN = mean)
+cluster_summary <- aggregate(cereal_numeric, by = list(Cluster = cereal_clusters$Cluster), FUN = mean)
 cluster_summary
 
 ```
