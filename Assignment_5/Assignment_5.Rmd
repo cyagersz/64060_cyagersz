@@ -124,7 +124,7 @@ Question 2:
 
 How many clusters would you choose?
 
-I Put each cereal into a cluster, I choose 6 clusters because I felt it split the cereals into around the same number  per cluster and after 6 it just lowers some clusters and not evenly.
+I put each cereal into a cluster, I choose 6 clusters because I felt it split the cereals into around the same number  per cluster and after 6 it just lowers some clusters and not evenly.
 ```{r}
 # Cut into k clusters
 clusters <- cutree(hc4, k = 6)
