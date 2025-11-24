@@ -144,7 +144,7 @@ rect.hclust(hc4,k=5,border=1:5)
 
 ```
 
-I selected 6 clusters because the Ward dendrogram shows a jump in height when going from 6 to 5 clusters, indicating that 6 clusters best keeps the structure of the data.
+I selected 6 clusters because the Ward dendrogram shows a jump in height when going from 6 to 5 clusters, showing that 6 clusters keeps the structure of the data.
 ```{r}
 # Cut into k clusters
 clusters <- cutree(hc4, k = 6)
@@ -214,7 +214,7 @@ clusters_full <- cutree(hc_full, k = 6)
 table(assigned_B, clusters_full[-train_index])
 
 ```
-The stability table shows that most clusters remain consistent when assigning Partition B cereals based on Partition A centroids. Some cereals in cluster 2 shift between clusters, but overall, the clustering structure is fairly stable.
+The stability table shows that most clusters remain consistent when assigning Partition B cereals based on Partition A centroids. Some cereals in cluster 2 shift between clusters, but overall, the clustering structure has medium to high stability.
 
 Question 4:
 
