@@ -225,7 +225,7 @@ Should the data be normalized? If not, how should they be used in the cluster an
 
 ```{r}
 
-# Compute cluster summaries for the numeric variables
+# Cluster summaries for the numeric variables
 cluster_summary <- aggregate(cereal_numeric, by = list(Cluster = cereal_clusters$Cluster), FUN = mean)
 cluster_summary
 

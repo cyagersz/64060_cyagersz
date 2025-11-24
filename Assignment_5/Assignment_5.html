@@ -652,7 +652,7 @@ table(assigned_B, clusters_full[-train_index])</code></pre>
 <p>The stability table shows that most clusters remain consistent when
 assigning Partition B cereals based on Partition A centroids. Some
 cereals in cluster 2 shift between clusters, but overall, the clustering
-structure has medium to high stable.</p>
+structure has medium to high stability.</p>
 <p>Question 4:</p>
 <p>The elementary public schools would like to choose a set of cereals
 to include in their daily cafeterias. Every day a different cereal is
@@ -660,7 +660,7 @@ offered, but all cereals should support a healthy diet. For this goal,
 you are requested to find a cluster of “healthy cereals.” Should the
 data be normalized? If not, how should they be used in the cluster
 analysis?</p>
-<pre class="r"><code># Compute cluster summaries for the numeric variables
+<pre class="r"><code># Cluster summaries for the numeric variables
 cluster_summary &lt;- aggregate(cereal_numeric, by = list(Cluster = cereal_clusters$Cluster), FUN = mean)
 cluster_summary</code></pre>
 <pre><code>##   Cluster  calories  protein       fat     sodium      fiber     carbo
