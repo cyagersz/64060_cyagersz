@@ -74,8 +74,8 @@ summary(cereal_numeric)
 
 Normalized the data
 ```{r}
-cereal_numeric_norm<-sapply(cereal_numeric,scale)
-row.names(cereal_numeric_norm)<-row.names(cereal_numeric)
+cereal_numeric_norm <- as.data.frame(scale(cereal_numeric))
+row.names(cereal_numeric_norm) <- row.names(cereal_numeric)
 head(cereal_numeric_norm)
 
 ```
@@ -124,7 +124,27 @@ Question 2:
 
 How many clusters would you choose?
 
-I put each cereal into a cluster, I choose 6 clusters because I felt it split the cereals into around the same number  per cluster and after 6 it just lowers some clusters and not evenly.
+```{r}
+
+plot(hc4, 
+     hang = -1, 
+     main = "Ward's Hierarchical Clustering Dendrogram",
+     xlab = "Cereals",
+     ylab = "Height",
+     cex = 0.5)
+rect.hclust(hc4,k=6,border=1:6)
+
+plot(hc4, 
+     hang = -1, 
+     main = "Ward's Hierarchical Clustering Dendrogram",
+     xlab = "Cereals",
+     ylab = "Height",
+     cex = 0.5)
+rect.hclust(hc4,k=5,border=1:5)
+
+```
+
+I selected 6 clusters because the Ward dendrogram shows a jump in height when going from 6 to 5 clusters, indicating that 6 clusters best keeps the structure of the data.
 ```{r}
 # Cut into k clusters
 clusters <- cutree(hc4, k = 6)
@@ -165,41 +185,36 @@ partition_B <- cereal_numeric_norm[-train_index, ]
 
 ```{r}
 # Cluster Partition A
-set.seed(123)
-kA <- kmeans(partition_A, centers = 6)
-kA
-kA$centers 
+hcA <- hclust(dist(partition_A), method = "ward.D2")
+clusters_A <- cutree(hcA, k = 6)
 
-# Cluster Partition B based on Partition A centroids
-kB <- kmeans(partition_B, centers = kA$centers)
-kB
-kB$centers
+centroids_A <- aggregate(partition_A, by = list(cluster = clusters_A),FUN = mean)
 
 
-fviz_cluster(kB, data = partition_B) +
-  ggtitle("Partition B Clusters Based on Partition A Centroids")
+centroids_A <- centroids_A[, -1]
 
-k_full <- kmeans(cereal_clusters, centers = 6)
-k_full
-k_full$centers
 
-fviz_cluster(k_full,cereal_clusters) +
-  ggtitle("Full Data")
+assign_to_nearest <- function(x, centers) {
+  x <- as.numeric(x)
+  centers <- as.matrix(centers)
 
-# Add cluster assignments to Partition B
-partitionB_clusters <- data.frame(partition_B, Cluster = kB$cluster)
+  dists <- apply(centers, 1, function(row_center) sum((x - row_center)^2))
+  which.min(dists)
+}
 
-# List cereals in each cluster for Partition B
-split(rownames(partitionB_clusters), partitionB_clusters$Cluster)
+assigned_B <- apply(partition_B, 1, assign_to_nearest, centers = centroids_A)
 
-# Add cluster assignments to full dataset
-full_clusters <- data.frame(cereal_numeric_norm, Cluster = k_full$cluster)
+assigned_B
 
-# List cereals in each cluster for full dataset
-split(rownames(full_clusters), full_clusters$Cluster)
+# Cluster full data
+hc_full <- hclust(dist(cereal_numeric_norm), method = "ward.D2")
+clusters_full <- cutree(hc_full, k = 6)
+
+# Compare stability
+table(assigned_B, clusters_full[-train_index])
 
 ```
-Partition B clusters assigned using cluster A centroids mostly show what was in the full dataset clustering. Some of the cereals shift between clusters like in cluster 2 it changes a bit but overall, the groupings are consistent and show medium to high stability for the clusters.
+The stability table shows that most clusters remain consistent when assigning Partition B cereals based on Partition A centroids. Some cereals in cluster 2 shift between clusters, but overall, the clustering structure is fairly stable.
 
 Question 4:
 
